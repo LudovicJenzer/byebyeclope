@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bye Bye Clope · Invitation</title>
+<meta name="description" content="Rejoins ta bande de soutien sur Bye Bye Clope, l'app pour arrêter de fumer avec sa bande.">
+<meta property="og:title" content="Bye Bye Clope · Invitation">
+<meta property="og:description" content="Rejoins ta bande de soutien : l'app pour arrêter de fumer avec sa bande.">
+<style>
+  /* Étape 10b-12 : page d'invitation (GitHub Pages). Mêmes couleurs que l'app. */
+  :root { --fond:#F3F8F4; --carte:#FFFFFF; --vert:#2E6B4F; --vertClair:#DCEFE3; --texte:#23352C; --doux:#4D6E5E; --bord:#E1ECE5; --surVert:#FFFFFF; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fond:#12201A; --carte:#1B2D24; --vert:#7CC7A0; --vertClair:#24402F; --texte:#E6F1EA; --doux:#A9C4B5; --bord:#2C4537; --surVert:#0E1A14; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:460px; margin:0 auto; padding:32px 16px 48px; }
+  .logo { font-size:56px; text-align:center; }
+  h1 { color:var(--vert); text-align:center; font-size:28px; margin:8px 0 4px; }
+  .sous { text-align:center; color:var(--doux); margin:0 0 24px; }
+  .carte { background:var(--carte); border:1px solid var(--bord); border-radius:24px; padding:20px; margin-bottom:16px; }
+  .etape { font-weight:700; margin:0 0 8px; }
+  .bouton { display:block; width:100%; text-align:center; padding:14px 16px; border-radius:16px; border:0; font-size:17px; font-weight:700; text-decoration:none; cursor:pointer; margin-top:8px; }
+  .principal { background:var(--vert); color:var(--surVert); }
+  .secondaire { background:var(--vertClair); color:var(--vert); }
+  .code { font-size:36px; font-weight:800; letter-spacing:5px; text-align:center; color:var(--vert); user-select:all; margin:4px 0; }
+  .petit { font-size:14px; color:var(--doux); }
+  .cache { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo" aria-hidden="true">🌬️</div>
+  <h1>Bye Bye Clope</h1>
+  <p class="sous">On t'invite dans une bande de soutien, pour arrêter de fumer (ou aider quelqu'un à le faire), ensemble 💚</p>
+
+  <div class="carte" id="avecCode">
+    <p class="etape">1. Tu as déjà l'app ?</p>
+    <a class="bouton principal" id="ouvrir" href="#">Ouvrir l'invitation dans l'app</a>
+    <p class="petit">Le code est rempli tout seul.</p>
+  </div>
+
+  <div class="carte">
+    <p class="etape">2. Pas encore l'app ?</p>
+    <a class="bouton secondaire" id="telecharger" href="#">Télécharger Bye Bye Clope (Android)</a>
+    <p class="petit">Installe-la, puis reviens ici et touche « Ouvrir l'invitation dans l'app ». Android peut demander d'autoriser l'installation : c'est normal tant que l'app n'est pas sur le Play Store.</p>
+  </div>
+
+  <div class="carte cache" id="carteCode">
+    <p class="etape">Ou tape le code dans l'app</p>
+    <p class="petit">« J'ai un code d'invitation », puis :</p>
+    <div class="code" id="code"></div>
+    <button class="bouton secondaire" id="copier" type="button">Copier le code</button>
+  </div>
+
+  <p class="petit" style="text-align:center">L'app encourage, elle ne remplace pas un avis médical.</p>
+</main>
+<script>
+  // ⚠️ À METTRE À JOUR à chaque nouvel APK : le lien de téléchargement (expo.dev → Builds → le build → « Install »)
+  var LIEN_TELECHARGEMENT = 'https://expo.dev/accounts/l.jenzer/projects/anti-fumee/builds';
+  var PAQUET = 'ch.byebyeclope.app';
+
+  var params = new URLSearchParams(location.search);
+  var code = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+  var valide = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{6}$/.test(code);
+
+  document.getElementById('telecharger').href = LIEN_TELECHARGEMENT;
+  if (valide) {
+    var affiche = code.slice(0, 3) + '-' + code.slice(3);
+    document.getElementById('code').textContent = affiche;
+    document.getElementById('carteCode').classList.remove('cache');
+    var android = /android/i.test(navigator.userAgent);
+    document.getElementById('ouvrir').href = android
+      ? 'intent://rejoindre/' + code + '#Intent;scheme=byebyeclope;package=' + PAQUET + ';S.browser_fallback_url=' + encodeURIComponent(LIEN_TELECHARGEMENT) + ';end'
+      : 'byebyeclope://rejoindre/' + code;
+    document.getElementById('copier').addEventListener('click', function () {
+      var b = this;
+      (navigator.clipboard ? navigator.clipboard.writeText(affiche) : Promise.reject()).then(
+        function () { b.textContent = 'Code copié ✓'; },
+        function () { b.textContent = 'Sélectionne le code ci-dessus pour le copier'; }
+      );
+    });
+  } else {
+    document.getElementById('avecCode').classList.add('cache');
+  }
+</script>
+</body>
+</html>
